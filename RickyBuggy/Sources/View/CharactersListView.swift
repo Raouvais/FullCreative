@@ -8,14 +8,18 @@ import SwiftUI
 struct CharactersListView: View {
     @Binding private var characters: [CharacterResponseModel]
     @Binding private var sortMethod: SortMethod
-    
+
     init(characters: Binding<[CharacterResponseModel]>, sortMethod: Binding<SortMethod>) {
         _characters = characters
         _sortMethod = sortMethod
     }
-    
+
+    var sortedCharacters: [CharacterResponseModel] {
+        characters.sorted(by: sortMethod)
+    }
+
     var body: some View {
-        List(characters) { character in
+        List(sortedCharacters) { character in
             let destinationViewModel = CharacterDetailViewModel(characterId: character.id, name: character.name)
             let destination = CharacterDetailView(viewModel: destinationViewModel)
 

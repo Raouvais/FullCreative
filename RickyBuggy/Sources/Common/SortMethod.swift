@@ -3,7 +3,7 @@
 //  RickyBuggy
 //
 
-// FIXME: 5 - Fix sorting, so it works - and sorts downloaded characters
+// Sorting method for characters based on name or episodes count
 enum SortMethod: Int {
     case name
     case episodesCount
@@ -19,3 +19,15 @@ extension SortMethod: CustomStringConvertible {
         }
     }
 }
+
+extension Array where Element == CharacterResponseModel {
+    func sorted(by method: SortMethod) -> [CharacterResponseModel] {
+        switch method {
+        case .name:
+            return self.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .episodesCount:
+            return self.sorted { $0.episode.count > $1.episode.count }
+        }
+    }
+}
+

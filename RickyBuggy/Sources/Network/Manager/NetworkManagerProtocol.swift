@@ -7,6 +7,6 @@ import Foundation
 import Combine
 
 protocol NetworkManagerProtocol {
-    func publisher(path: String) -> Publishers.MapKeyPath<Publishers.MapError<URLSession.DataTaskPublisher, Error>, Data>
-    func publisher(fromURLString urlString: String) -> Publishers.MapError<Publishers.MapKeyPath<Publishers.FlatMap<URLSession.DataTaskPublisher, Publishers.ReceiveOn<Publishers.SetFailureType<Optional<URL>.Publisher, URLError>, DispatchQueue>>, Data>, Error> 
+    func publisher(path: String, method: String, body: Data?, timeout: TimeInterval) -> AnyPublisher<Data, Error>
+    func publisher(fromURLString urlString: String) -> AnyPublisher<Data, Error>
 }

@@ -18,7 +18,7 @@ final class APIClient: APIProtocol {
         
         return Just(urlString)
             .setFailureType(to: Error.self)
-            .flatMap(networkManager.publisher(fromURLString:))
+            .flatMap { networkManager.publisher(fromURLString: $0) }
             .mapError { error in
                 debugPrint("Image data request failed: \(error)")
                 return APIError.imageDataRequestFailed(error)
@@ -31,7 +31,9 @@ final class APIClient: APIProtocol {
 
         return Just("/api/character/[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]")
             .setFailureType(to: Error.self)
-            .flatMap(networkManager.publisher(path:))
+            .flatMap { path in
+                networkManager.publisher(path: path, method: "GET", body: nil, timeout: 5)
+            }
             .decode(type: [CharacterResponseModel].self, decoder: JSONDecoder())
             .mapError { error in
                 debugPrint("Characters request failed: \(error)")
@@ -45,7 +47,9 @@ final class APIClient: APIProtocol {
 
         return Just("/api/character/\(id)")
             .setFailureType(to: Error.self)
-            .flatMap(networkManager.publisher(path:))
+            .flatMap { path in
+                networkManager.publisher(path: path, method: "GET", body: nil, timeout: 5)
+            }
             .decode(type: CharacterResponseModel.self, decoder: JSONDecoder())
             .mapError { error in
                 debugPrint("Character detail request failed: \(error)")
@@ -59,7 +63,9 @@ final class APIClient: APIProtocol {
 
         return Just("/api/location/\(id)")
             .setFailureType(to: Error.self)
-            .flatMap(networkManager.publisher(path:))
+            .flatMap { path in
+                networkManager.publisher(path: path, method: "GET", body: nil, timeout: 5)
+            }
             .decode(type: LocationDetailsResponseModel.self, decoder: JSONDecoder())
             .mapError { error in
                 debugPrint("Location request failed: \(error)")

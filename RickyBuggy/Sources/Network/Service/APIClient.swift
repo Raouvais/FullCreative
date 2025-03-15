@@ -19,7 +19,10 @@ final class APIClient: APIProtocol {
         return Just(urlString)
             .setFailureType(to: Error.self)
             .flatMap(networkManager.publisher(fromURLString:))
-            .mapError { _ in APIError.imageDataRequestFailed }
+            .mapError { error in
+                debugPrint("Image data request failed: \(error)")
+                return APIError.imageDataRequestFailed(error)
+            }
             .eraseToAnyPublisher()
     }
     
@@ -31,8 +34,8 @@ final class APIClient: APIProtocol {
             .flatMap(networkManager.publisher(path:))
             .decode(type: [CharacterResponseModel].self, decoder: JSONDecoder())
             .mapError { error in
-                debugPrint(error)
-                return APIError.charactersRequestFailed
+                debugPrint("Characters request failed: \(error)")
+                return APIError.charactersRequestFailed(error)
             }
             .eraseToAnyPublisher()
     }
@@ -45,8 +48,8 @@ final class APIClient: APIProtocol {
             .flatMap(networkManager.publisher(path:))
             .decode(type: CharacterResponseModel.self, decoder: JSONDecoder())
             .mapError { error in
-                debugPrint(error)
-                return APIError.characterDetailRequestFailed
+                debugPrint("Character detail request failed: \(error)")
+                return APIError.characterDetailRequestFailed(error)
             }
             .eraseToAnyPublisher()
     }
@@ -59,8 +62,8 @@ final class APIClient: APIProtocol {
             .flatMap(networkManager.publisher(path:))
             .decode(type: LocationDetailsResponseModel.self, decoder: JSONDecoder())
             .mapError { error in
-                debugPrint(error)
-                return APIError.locationRequestFailed
+                debugPrint("Location request failed: \(error)")
+                return APIError.locationRequestFailed(error)
             }
             .eraseToAnyPublisher()
     }

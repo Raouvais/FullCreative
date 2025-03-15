@@ -46,6 +46,6 @@ struct FetchRetryView: View {
 
 struct FetchRetryView_Previews: PreviewProvider {
     static var previews: some View {
-        FetchRetryView(errors: [.locationRequestFailed], onRetry: {})
+        FetchRetryView(errors: [.locationRequestFailed(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Location not found"]))], onRetry: {})
     }
 }

@@ -48,7 +48,9 @@ final class CharacterDetailViewModel: ObservableObject {
 
         dataPublisher
             .sink(receiveCompletion: { [weak self] completion in
-                self?.characterErrors.append(.characterDetailRequestFailed)
+                if case let .failure(error) = completion {
+                    self?.characterErrors.append(.characterDetailRequestFailed(error))
+                }
             }, receiveValue: { [weak self] characterDetail, location in
                 self?.data = (characterDetail, location)
             })
@@ -112,13 +114,9 @@ final class CharacterDetailViewModel: ObservableObject {
                            // FIXME: 11 - FIX so location is fetched based on character location id
                            apiService.locationPublisher(with: "2"))
                 .sink(receiveCompletion: { [weak self] completion in
-                    switch completion {
-                    case let .failure(error):
-                        self?.characterErrors.append(error)
-                    case .finished:
-                        break
+                    if case let .failure(error) = completion {
+                        self?.characterErrors.append(.characterDetailRequestFailed(error))
                     }
-
                     self?.isLoading = false
                 }, receiveValue: { [weak self] characterDetail, comments in
                     self?.dataSubject.send((characterDetail, comments))

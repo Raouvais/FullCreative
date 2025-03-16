@@ -10,7 +10,7 @@ final class AppMainViewModel: ObservableObject {
     @Published var showsSortActionSheet: Bool = false
     @Published var sortMethod: SortMethod = .name
     @Published var characters: [CharacterResponseModel] = []
-
+    
     @Published private(set) var characterErrors: [APIError] = []
     @Published private(set) var sortMethodDescription: String = "Choose Sorting"
 
@@ -18,6 +18,7 @@ final class AppMainViewModel: ObservableObject {
     private let sortMethodSubject = CurrentValueSubject<SortMethod?, Never>(nil)
 
     private var isLoading = false
+    private var hasFetchedData = false
     private var cancellables = Set<AnyCancellable>()
     
     init() {
@@ -27,7 +28,7 @@ final class AppMainViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] sortMethod in
                 self?.sortMethod = sortMethod
                 self?.sortMethodDescription = sortMethod.description
-                self?.requestData()
+                self?.applySorting() // ✅ Only sort locally instead of re-fetching
             })
             .store(in: &cancellables)
         
@@ -36,10 +37,15 @@ final class AppMainViewModel: ObservableObject {
             .removeDuplicates()
             .assign(to: \.showsSortActionSheet, on: self)
             .store(in: &cancellables)
-        
-        requestData()
     }
     
+    /// Fetches data only if it hasn't been fetched already
+    func fetchDataIfNeeded() {
+        guard !hasFetchedData else { return }
+        hasFetchedData = true
+        requestData()
+    }
+
     func setSortMethod(_ sortMethod: SortMethod) {
         sortMethodSubject.send(sortMethod)
     }
@@ -57,7 +63,6 @@ final class AppMainViewModel: ObservableObject {
         #endif
         
         characterErrors.removeAll()
-
         isLoading = true
 
         let apiService = DIContainer.shared.resolve(APIClient.self)
@@ -75,7 +80,13 @@ final class AppMainViewModel: ObservableObject {
                 self?.isLoading = false
             }, receiveValue: { [weak self] characters in
                 self?.characters = characters
+                self?.applySorting() // ✅ Sort the fetched data
             })
             .store(in: &cancellables)
+    }
+    
+    /// Sorts the characters **without re-fetching**
+    private func applySorting() {
+        characters = characters.sorted(by: sortMethod)
     }
 }

@@ -20,6 +20,9 @@ struct AppMainView: View {
                         sortButton
                     }
                 }
+                .onAppear {
+                    viewModel.fetchDataIfNeeded()
+                }
         }
         .actionSheet(isPresented: $viewModel.showsSortActionSheet) {
             sortActionSheet

@@ -45,7 +45,10 @@ final class AppMainViewModel: ObservableObject {
     }
     
     func setShowsSortActionSheet() {
-        showsSortActionSheetSubject.send(true)
+        showsSortActionSheetSubject.send(false) // Reset state
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.showsSortActionSheetSubject.send(true) // Re-trigger action sheet
+        }
     }
     
     func requestData() {

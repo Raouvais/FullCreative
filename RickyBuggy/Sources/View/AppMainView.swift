@@ -49,7 +49,6 @@ private extension AppMainView {
         }
     }
     
-    // FIXME: 8 - Fix action sheet only appearing once, in other words - after it gets opened and closed, it cannot be opened again
     var sortActionSheet: ActionSheet {
         ActionSheet(
             title: Text("Sort method"),

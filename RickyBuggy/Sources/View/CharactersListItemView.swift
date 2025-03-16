@@ -33,8 +33,14 @@ struct CharactersListItemView: View {
 
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
-                        // FIXME: 6 - Make URL tappable
-                        Text(viewModel.url)
+                        if let url = URL(string: viewModel.url) {
+                            Link(destination: url) {
+                                Text(viewModel.url)
+                                    .foregroundColor(.blue)
+                                    .underline()
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
 
                         Text(viewModel.created)
                             .contentsStyle()
@@ -44,6 +50,7 @@ struct CharactersListItemView: View {
                 Spacer()
             }
         }
+        .contentShape(Rectangle())
     }
 }
 

@@ -5,27 +5,24 @@
 
 import SwiftUI
 
-// FIXME: 9 - Fix title (character name) so it's displayed on the top, just below navigation bar
 struct CharacterDetailView: View {
     @ObservedObject private var viewModel: CharacterDetailViewModel
+    @Environment(\.presentationMode) var presentationMode
     
     init(viewModel: CharacterDetailViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-        NavigationView {
-            content
-                .navigationTitle(viewModel.title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: viewModel.requestData) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                        }
+        content
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: viewModel.requestData) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
                     }
                 }
-        }
+            }
     }
 }
 
@@ -34,6 +31,11 @@ private extension CharacterDetailView {
         if viewModel.data != nil {
             ScrollView {
                 VStack(alignment: .leading) {
+                    Text(viewModel.title)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 8)
                     photoSection
                     detailsSection
                     locationSection
@@ -73,7 +75,7 @@ private extension CharacterDetailView {
 private extension CharacterDetailView {
     var detailsSection: some View {
         VStack(alignment: .center, spacing: 8) {
-           
+            
             HStack {
                 Text("Popularity level:")
                     .font(.headline)
@@ -151,4 +153,4 @@ private extension CharacterDetailView {
         }
     }
 }
-    
+

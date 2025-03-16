@@ -18,6 +18,7 @@ struct CharacterPhoto: View {
             return AnyView(
                 Image(uiImage: posterUIImage)
                     .resizable()
+                    .aspectRatio(contentMode: .fit)
             )
         } else {
             return AnyView(placeholder)

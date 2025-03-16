@@ -7,7 +7,6 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     @ObservedObject private var viewModel: CharacterDetailViewModel
-    @Environment(\.presentationMode) var presentationMode
     
     init(viewModel: CharacterDetailViewModel) {
         self.viewModel = viewModel
@@ -56,13 +55,11 @@ private extension CharacterDetailView {
 // MARK: - Section: Photo
 
 private extension CharacterDetailView {
-    // FIXME: 10 - Fix so image isn't cropped and still looks good (see Morty for example of how broken it is now)
     var photoSection: some View {
         VStack(alignment: .center, spacing: 8) {
             CharacterPhoto(data: viewModel.CharacterPhotoData)
-                .aspectRatio(1, contentMode: .fill)
-                .frame(height: UIScreen.main.bounds.height / 5)
-                .cornerRadius(5)
+                .scaledToFit()
+                .frame(maxWidth: UIScreen.main.bounds.width * 0.9)
         }
         .padding()
     }

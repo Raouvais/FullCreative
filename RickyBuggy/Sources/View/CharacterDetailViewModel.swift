@@ -47,6 +47,7 @@ final class CharacterDetailViewModel: ObservableObject {
             .map(\.characterDetails)
 
         dataPublisher
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.characterErrors.append(.characterDetailRequestFailed(error))
@@ -104,15 +105,15 @@ final class CharacterDetailViewModel: ObservableObject {
     
     func requestData() {
         guard isLoading == false else { return }
-        
+
         data = nil
         characterErrors.removeAll()
         isLoading = true
 
         if let apiService = DIContainer.shared.resolve(APIClient.self), let characterID = characterIDSubject.value {
             Publishers.Zip(apiService.characterDetailPublisher(with: String(characterID)),
-                           // FIXME: 11 - FIX so location is fetched based on character location id
-                           apiService.locationPublisher(with: "2"))
+                           apiService.locationPublisher(with: "\(data?.location.id ?? 2)"))
+                .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { [weak self] completion in
                     if case let .failure(error) = completion {
                         self?.characterErrors.append(.characterDetailRequestFailed(error))

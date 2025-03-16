@@ -6,23 +6,20 @@
 import SwiftUI
 
 struct AppMainView: View {
-    // FIXME: 13 - fix issue with re-invoking network request on tapping show list/hide list
     @ObservedObject var viewModel: AppMainViewModel = AppMainViewModel()
     
     var body: some View {
         NavigationView {
-            characterListView
-                .navigationTitle(Text("Characters"))
-                .navigationBarTitleDisplayMode(.automatic)
-                // FIXME: 7 - Fix issue with glitching toolbar on entering details view
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        sortButton
-                    }
-                }
-                .onAppear {
-                    viewModel.fetchDataIfNeeded()
-                }
+            VStack(spacing: 0) {
+                characterListView
+                Divider()
+                bottomToolbar
+            }
+            .navigationTitle("Characters")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .task {
+            viewModel.fetchDataIfNeeded()
         }
         .actionSheet(isPresented: $viewModel.showsSortActionSheet) {
             sortActionSheet
@@ -34,18 +31,30 @@ struct AppMainView: View {
 
 private extension AppMainView {
     @ViewBuilder var characterListView: some View {
-        if viewModel.characters.isEmpty == false {
+        if !viewModel.characters.isEmpty {
             CharactersListView(characters: $viewModel.characters, sortMethod: $viewModel.sortMethod)
-        } else if viewModel.characterErrors.isEmpty == false {
+        } else if !viewModel.characterErrors.isEmpty {
             FetchRetryView(errors: viewModel.characterErrors, onRetry: {
                 viewModel.requestData()
             })
+            .frame(maxHeight: .infinity)
         } else {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
         }
     }
-
+    
+    var bottomToolbar: some View {
+        HStack {
+            Button(action: viewModel.setShowsSortActionSheet) {
+                Text("Choose Sorting")
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .padding()
+        .background(Color.white)
+    }
+    
     var sortButton: some View {
         Button(action: viewModel.setShowsSortActionSheet) {
             Text("Choose Sorting")

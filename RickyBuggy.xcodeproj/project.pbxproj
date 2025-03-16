@@ -329,6 +329,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		2CDFF275282A467E00C0C725 /* TODO Warning */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);

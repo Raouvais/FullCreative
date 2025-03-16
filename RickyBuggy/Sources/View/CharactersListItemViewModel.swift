@@ -27,32 +27,44 @@ final class CharactersListItemViewModel: ObservableObject {
         
         characterSharedPublisher
             .map(\.name)
-            .assign(to: \.title, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] name in
+                self?.title = name
+            }
             .store(in: &cancellables)
         
         characterSharedPublisher
             .map(\.image)
-            .flatMap { imageURLString -> ImageDataPublisher in
-                guard let apiService = apiService else {
+            .flatMap { [weak self] imageURLString -> ImageDataPublisher in
+                guard let self = self, let apiService = apiService else {
                     return Empty().eraseToAnyPublisher()
                 }
                 return apiService.imageDataPublisher(fromURLString: imageURLString)
             }
             .replaceError(with: Data())
             .compactMap { $0 }
-            .assign(to: \.characterImageData, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.characterImageData = data
+            }
             .store(in: &cancellables)
         
         characterSharedPublisher
             .map(\.created)
             .removeDuplicates()
-            .assign(to: \.created, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] created in
+                self?.created = created
+            }
             .store(in: &cancellables)
         
         characterSharedPublisher
             .map(\.url)
             .removeDuplicates()
-            .assign(to: \.url, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] url in
+                self?.url = url
+            }
             .store(in: &cancellables)
         
         characterSubject.send(character)

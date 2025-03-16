@@ -31,12 +31,15 @@ final class CharacterDetailViewModel: ObservableObject {
     init(characterId: Int, name: String) {
         self.title = name
 
-        let apiService = DIContainer.shared.resolve(APIClient.self)
+        guard let apiService = DIContainer.shared.resolve(APIClient.self) else { return }
 
         showsLocationDetailsSubject
             .compactMap { $0 }
             .removeDuplicates()
-            .assign(to: \.showsLocationDetailsView, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] value in
+                self?.showsLocationDetailsView = value
+            }
             .store(in: &cancellables)
 
         let dataPublisher = dataSubject
@@ -45,6 +48,7 @@ final class CharacterDetailViewModel: ObservableObject {
 
         let characterDetailsPublisher = dataPublisher
             .map(\.characterDetails)
+            .receive(on: DispatchQueue.main)
 
         dataPublisher
             .receive(on: DispatchQueue.main)
@@ -59,20 +63,24 @@ final class CharacterDetailViewModel: ObservableObject {
 
         characterDetailsPublisher
             .map(\.image)
-            .flatMap { imageURLString -> ImageDataPublisher in
-                guard let apiService = apiService else {
-                    return Empty().eraseToAnyPublisher()
-                }
+            .flatMap { [weak self] imageURLString -> ImageDataPublisher in
+                guard let self = self else { return Empty().eraseToAnyPublisher() }
                 return apiService.imageDataPublisher(fromURLString: imageURLString)
             }
             .replaceError(with: Data())
             .compactMap { $0 }
-            .assign(to: \.CharacterPhotoData, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.CharacterPhotoData = data
+            }
             .store(in: &cancellables)
 
         characterDetailsPublisher
             .map(\.name)
-            .assign(to: \.title, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] name in
+                self?.title = name
+            }
             .store(in: &cancellables)
 
         characterDetailsPublisher
@@ -80,18 +88,27 @@ final class CharacterDetailViewModel: ObservableObject {
             .map(\.count)
             .compactMap(AppearanceFrequency.init(count:))
             .map(\.popularity)
-            .assign(to: \.popularityName, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] popularity in
+                self?.popularityName = popularity
+            }
             .store(in: &cancellables)
         
         characterDetailsPublisher
             .map(\.url)
             .removeDuplicates()
-            .assign(to: \.url, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] popularity in
+                self?.popularityName = popularity
+            }
             .store(in: &cancellables)
 
         characterDetailsPublisher
             .map(\.created)
-            .assign(to: \.created, on: self)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] created in
+                self?.created = created
+            }
             .store(in: &cancellables)
 
         characterIDSubject.send(characterId)

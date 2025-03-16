@@ -107,7 +107,7 @@ private extension CharacterDetailView {
                 
                 Button(action: viewModel.setShowsLocationDetails) {
                     Image(systemName: "square.and.arrow.up.fill")
-                                            .accentColor(.orange)
+                        .accentColor(.orange)
                 }
             }
         }
